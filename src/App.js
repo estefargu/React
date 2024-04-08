@@ -3,13 +3,20 @@ import Axios from 'axios';
 import './App.css';
 
 export default function App() {
+  const [restaurantData, setRestaurantData] = useState({ // variable con la informacion del restaurante
+    restaurantName: '',
+    restaurantNit: '',
+    restaurantAddress: '',
+    restaurantPhone: '',
+    cityId: 0
+  });
   const [contador, setContador] = useState(0); 
   const [departamentos, setDepartamentos] = useState([]);
   const [deptoSeleccionado, setDeptoSeleccionado] = useState('');
   const [ciudades, setCiudades] = useState([]);
   const [ciudadSeleccionada, setCiudadSeleccionada] = useState('');
 
-  useEffect(()=>{
+  useEffect(()=>{ //obtener informacion del backend
 
     const obtenerDeptos = async () => {
       const response = await Axios({
@@ -45,11 +52,45 @@ export default function App() {
   }
 
   function handleCiudadesSelect(event){
-    setCiudadSeleccionada(event.target.value);
+    setCiudadSeleccionada(event.target.value); 
   }
 
-  return (
-    <div> 
+  function handleChange(event){
+    console.log(event.target); // solo para ver como funciona
+    const {name, value} = event.target; //me trae toda la informacion de lo que estoy manipulando el target
+    console.log( name + " ; " + value); // solo para ver como funciona
+    setRestaurantData({
+      ...restaurantData,
+      [name]: value
+    });
+
+  }
+
+//obtener el valor que yo ingrese en la parte del formulario que opara eso se usa el onchage
+
+  const handleSubmit = async(event) =>{ // funcione que se declara como una variable
+    try{
+      const response = await Axios.post('http://localhost:1337/api/createrestaurant', restaurantData);
+    }
+    catch(error){
+      console.log(error);
+    }
+  }
+
+  return ( //html
+    <div>
+      <h2>Formulario Restaurante</h2>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>Nombre del restaurante</label>
+          <input type='text' id="restaurantName" name="restaurantName" value={restaurantData.restaurantName} onChange={handleChange}></input>
+        </div>
+        <div>
+          <label>NIT del restaurante</label>
+          <input type='text' id="restaurantNit" name="restaurantNit" value={restaurantData.restaurantNit} onChange={handleChange}></input>        
+        </div>
+        
+      </form>  
       <label>Contador {contador} </label>
       <div>
         <button onClick={handleClick} > Aumentar contador </button>
@@ -61,7 +102,7 @@ export default function App() {
         <select id = "opcionesDepartamentos" value= {deptoSeleccionado} onChange={handleDepartamentosSelect}>
           <option value="">Seleccione un departamento</option>
           {departamentos.map(opcion =>(
-          <opcion key={opcion.value} value={opcion.value}>{opcion.label}</opcion>
+          <option key={opcion.value} value={opcion.value}>{opcion.label}</option>
           ))}
         </select>
       </div>
@@ -69,7 +110,7 @@ export default function App() {
         <select id = "opcionesCiudades" value= {ciudadSeleccionada} onChange={handleCiudadesSelect}>
           <option value="">Seleccione una ciudad</option>
           {ciudades.map(opcion =>(
-          <opcion key={opcion.value} value={opcion.value}>{opcion.label}</opcion>
+          <option key={opcion.value} value={opcion.value}>{opcion.label}</option>
           ))}
         </select>
       </div>
